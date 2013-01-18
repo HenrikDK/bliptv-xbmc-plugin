@@ -87,9 +87,9 @@ class BlipTVScraper:
                 else:
                     title = title[0]
 
-                name = self.common.parseDOM(title, "a")[0]
-                link = self.common.parseDOM(title, "a", ret="href")[0]
-                tmp.append({"path": get("path"), "show": link, "scraper": "show", "Title": self.common.replaceHTMLCodes(name.strip()), "thumbnail": thumbnail})
+                link = self.common.parseDOM(item, "div", attrs={"class": "PosterCard"}, ret="data-show-page-url")[0]
+
+                tmp.append({"path": get("path"), "show": link, "scraper": "show", "Title": self.common.replaceHTMLCodes(title.strip()), "thumbnail": thumbnail})
 
             if len(tmp) > 0 and page < 50:
                 items += tmp
