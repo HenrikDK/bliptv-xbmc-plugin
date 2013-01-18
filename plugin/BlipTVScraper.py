@@ -228,14 +228,13 @@ class BlipTVScraper:
                 else:
                     title = title[0]
 
-                name = self.common.parseDOM(title, "a")[0]
-                link = self.common.parseDOM(title, "a", ret="href")[0]
+                link = self.common.parseDOM(show, "div", attrs={"class": "PosterCard"}, ret="data-show-page-url")[0]
 
                 item = {}
                 item["show"] = link
                 item["scraper"] = "show"
                 item["thumbnail"] = thumbnail
-                item["Title"] = self.common.replaceHTMLCodes(name)
+                item["Title"] = self.common.replaceHTMLCodes(title)
 
                 shows.append(item)
 
