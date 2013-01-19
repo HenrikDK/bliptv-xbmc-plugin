@@ -42,16 +42,14 @@ class TestBlipTVUtils(BaseTestCase.BaseTestCase):
 
     def test_searchShow_should_use_parseDOM_to_scrape_page(self):
         self.scraper.extractAndResizeThumbnail = Mock()
-        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], "some_string", "some_string", "some_string", "", "", "", ""]
-        sys.modules["__main__"].common.parseDOM.return_value = [["some_string"]]
-
+        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], "some_string", "some_string", ""]
         self.scraper.searchShow()
 
         assert(sys.modules["__main__"].common.parseDOM.call_count > 2)
 
     def test_searchShow_should_call_utils_replaceHTMLCodes_to_remove_html_char_codes_from_strings(self):
         self.scraper.extractAndResizeThumbnail = Mock()
-        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], "some_string", "some_string", "some_string", "", "", "", ""]
+        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], "some_string", "some_string", ""]
 
         self.scraper.searchShow()
 
@@ -172,7 +170,7 @@ class TestBlipTVUtils(BaseTestCase.BaseTestCase):
         
     def test_scrapeCategoryFeaturedShows_should_use_parseDOM_to_scrape_page(self):
         self.scraper.extractAndResizeThumbnail = Mock()
-        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], ["some_string"], ["some_string"], ["some_string"], []]
+        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], ["some_string"], ["some_string"], []]
 
         self.scraper.scrapeCategoryFeaturedShows()
         
@@ -180,7 +178,7 @@ class TestBlipTVUtils(BaseTestCase.BaseTestCase):
             
     def test_scrapeCategoryFeaturedShows_should_call_utils_replaceHTMLCodes_to_remove_html_char_codes_from_strings(self):
         self.scraper.extractAndResizeThumbnail = Mock()
-        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], ["some_string"], ["some_string"], ["some_string"], []]
+        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], ["some_string"], ["some_string"], []]
         
         self.scraper.scrapeCategoryFeaturedShows()
         
@@ -188,7 +186,7 @@ class TestBlipTVUtils(BaseTestCase.BaseTestCase):
     
     def test_scrapeCategoryFeaturedShows_should_delete_channel_id_when_done_if_present(self):
         self.scraper.extractAndResizeThumbnail = Mock()
-        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], ["some_string"], ["some_string"], ["some_string"], []]
+        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], ["some_string"], ["some_string"], []]
         params = {"category": "some_category", "channel_id": "some_chanel"}
         
         self.scraper.scrapeCategoryFeaturedShows(params)
