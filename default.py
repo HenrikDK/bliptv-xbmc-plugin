@@ -26,13 +26,13 @@ try: import xbmcvfs
 except: import xbmcvfsdummy as xbmcvfs
 
 # plugin constants
-version = "0.8.0"
-plugin = "BlipTV Beta-" + version
+version = "0.8.2"
+plugin = "BlipTV-" + version
 author = "TheCollective"
 url = "www.xbmc.com"
 
 # xbmc hooks
-settings = xbmcaddon.Addon(id='plugin.video.bliptv.beta')
+settings = xbmcaddon.Addon(id='plugin.video.bliptv')
 language = settings.getLocalizedString
 dbg = settings.getSetting("debug") == "true"
 dbglevel = 3
