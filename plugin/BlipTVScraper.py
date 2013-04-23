@@ -657,8 +657,7 @@ class BlipTVScraper:
         if get("path"):
             del params["path"]
 
-        #result = self.cache.cacheFunction(params["new_results_function"], params)
-        result = params["new_results_function"](params)
+        result = self.cache.cacheFunction(params["new_results_function"], params)
 
         params["path"] = path
         params["page"] = str(page)
