@@ -1,0 +1,40 @@
+# -*- coding: utf-8 -*-
+import BaseTestCase
+import nose
+import sys
+import os
+from mock import Mock
+
+
+class TestBlipTVAccount(BaseTestCase.BaseTestCase):
+
+    def ttest_plugin_should_login_through_facebook(self):
+        #self.navigation.executeAction({"action": "download", "videoid": "5779197", "async": "false"})
+        assert(False)
+
+    def test_plugin_should_fetch_following_shows(self):
+        self.navigation.listMenu({"path":"/root/my_followed", "scraper": "followed" , "login": "true", "folder": "true"})
+        self.assert_directory_count_greater_than_or_equals(1)
+        self.assert_directory_count_less_than_or_equals(51)
+        self.assert_directory_is_a_folder_list()
+        self.assert_directory_items_should_have_external_thumbnails() # Two internal!
+        #self.assert_directory_item_urls_contain("show")
+
+    def ttest_plugin_should_fetch_new_episodes(self):
+        self.navigation.listMenu({"path":"/root/my_followed", "scraper": "followed_new_episodes" , "login": "true", "folder": "true"})
+        self.assert_directory_count_greater_than_or_equals(1)
+        self.assert_directory_count_less_than_or_equals(51)
+        self.assert_directory_is_a_video_list()
+        self.assert_directory_items_should_have_external_thumbnails()
+
+    def ttest_plugin_should_fetch_new_episodes(self):
+        self.navigation.listMenu({"path":"/root/my_followed", "scraper": "followed_new_shows" , "login": "true", "folder": "true"})
+        self.assert_directory_count_greater_than_or_equals(1)
+        self.assert_directory_count_less_than_or_equals(51)
+        self.assert_directory_is_a_folder_list()
+        self.assert_directory_items_should_have_external_thumbnails()
+
+        assert(False)
+
+if __name__ == "__main__":
+        nose.runmodule()

@@ -32,6 +32,7 @@ plugin = u"CommonFunctions Beta-" + version
 print plugin
 
 USERAGENT = u"Mozilla/5.0 (Windows NT 6.2; Win64; x64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1"
+USERAGENT = u"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.22 (KHTML, like Gecko) Ubuntu Chromium/25.0.1364.160 Chrome/25.0.1364.160 Safari/537.22"
 
 if hasattr(sys.modules["__main__"], "xbmc"):
     xbmc = sys.modules["__main__"].xbmc
@@ -404,8 +405,10 @@ def fetchPage(params={}):
 
     if get("headers"):
         for head in get("headers"):
+            log("Adding header %s: %s" % (head[0], head[1]))
             request.add_header(head[0], head[1])
 
+    log("Adding header %s: %s" % ("User-Agent", USERAGENT))
     request.add_header('User-Agent', USERAGENT)
 
     if get("cookie"):
@@ -418,7 +421,7 @@ def fetchPage(params={}):
         log("connecting to server...", 1)
 
         con = urllib2.urlopen(request)
-        ret_obj["header"] = con.info()
+        ret_obj["header"] = con.info().headers
         ret_obj["new_url"] = con.geturl()
         if get("no-content", "false") == u"false" or get("no-content", "false") == "false":
             inputdata = con.read()
