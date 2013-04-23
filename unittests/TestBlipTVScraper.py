@@ -6,7 +6,7 @@ import sys
 from  BlipTVScraper import BlipTVScraper
 
 
-class TestBlipTVUtils(BaseTestCase.BaseTestCase):
+class TestBlipTVScraper(BaseTestCase.BaseTestCase):
     scraper = ""
 
     def setUp(self):
@@ -155,22 +155,30 @@ class TestBlipTVUtils(BaseTestCase.BaseTestCase):
         assert(sys.modules["__main__"].common.replaceHTMLCodes.call_count > 0)
     
     def test_scrapeCategoryFeaturedShows_should_call_createUrl_to_get_proper_url(self):
-        sys.modules["__main__"].common.parseDOM.side_effect = ["", "some_string", "some_string"]
-        
+        self.scraper.extractAndResizeThumbnail = Mock()
+        self.scraper.scrapeChannelId = Mock()
+
+        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], ["some_string"], ["some_string"], [], []]
+
         self.scraper.scrapeCategoryFeaturedShows()
         
         self.scraper.createUrl.assert_any_call({}, 1)
         
     def test_scrapeCategoryFeaturedShows_should_call_fetchPage_to_get_html_contents(self):
-        sys.modules["__main__"].common.parseDOM.side_effect = ["", "some_string", "some_string"]
-        
+        self.scraper.extractAndResizeThumbnail = Mock()
+        self.scraper.scrapeChannelId = Mock()
+
+        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], ["some_string"], ["some_string"], [], []]
+
         self.scraper.scrapeCategoryFeaturedShows()
         
         sys.modules["__main__"].common.fetchPage.assert_any_call({"link": "some_url"})
         
     def test_scrapeCategoryFeaturedShows_should_use_parseDOM_to_scrape_page(self):
         self.scraper.extractAndResizeThumbnail = Mock()
-        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], ["some_string"], ["some_string"], []]
+        self.scraper.scrapeChannelId = Mock()
+
+        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], ["some_string"], ["some_string"], [], []]
 
         self.scraper.scrapeCategoryFeaturedShows()
         
@@ -178,15 +186,19 @@ class TestBlipTVUtils(BaseTestCase.BaseTestCase):
             
     def test_scrapeCategoryFeaturedShows_should_call_utils_replaceHTMLCodes_to_remove_html_char_codes_from_strings(self):
         self.scraper.extractAndResizeThumbnail = Mock()
-        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], ["some_string"], ["some_string"], []]
-        
+        self.scraper.scrapeChannelId = Mock()
+
+        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], ["some_string"], ["some_string"], [], []]
+
         self.scraper.scrapeCategoryFeaturedShows()
         
         assert(sys.modules["__main__"].common.replaceHTMLCodes.call_count > 0)
     
     def test_scrapeCategoryFeaturedShows_should_delete_channel_id_when_done_if_present(self):
         self.scraper.extractAndResizeThumbnail = Mock()
-        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], ["some_string"], ["some_string"], []]
+        self.scraper.scrapeChannelId = Mock()
+
+        sys.modules["__main__"].common.parseDOM.side_effect = [["some_string"], ["some_string"], ["some_string"], [], []]
         params = {"category": "some_category", "channel_id": "some_chanel"}
         
         self.scraper.scrapeCategoryFeaturedShows(params)
@@ -491,7 +503,7 @@ class TestBlipTVUtils(BaseTestCase.BaseTestCase):
         self.scraper.getNewResultsFunction(params)
         
         assert(params["folder"] == "true")
-        assert(params["new_results_function"] == self.scraper.scrapeCategoryShows)
+        assert(params["new_results_function"] == self.scraper.scrapeCategoryFeaturedShows)
 
     def test_getNewResultsFunction_should_set_proper_params_for_scrapeCategories_if_scraper_is_staff_picks_and_category(self):
         params = {"scraper": "staff_picks", "category": "some_category"}

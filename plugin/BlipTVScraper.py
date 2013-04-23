@@ -40,7 +40,7 @@ class BlipTVScraper:
         self.urls['category_recent_videos'] = "http://blip.tv/pr/channel_get_recent_episodes?channels_id=%s&page=%s&no_wrap=1"
         self.urls['category_trending_videos'] = "http://blip.tv/pr/channel_get_trending_episodes?channels_id=%s&page=%s&no_wrap=1"
         self.urls['category_popular_videos'] = "http://blip.tv/pr/channel_get_popular_episodes?channels_id=%s&page=%s&no_wrap=1"
-        self.urls['category_az_listing'] = "http://blip.tv/pr/channel_get_directory_listing?channels_id=%s&section=all&page=%s&no_wrap=1"
+        self.urls['category_az_listing'] = "http://blip.tv/pr/channel_get_directory_listing?channels_id=%s&page=%s&section=all&no_wrap=1"
         self.urls['category_staff_picks'] = "http://blip.tv/pr/channel_get_staff_picks?channels_id=%s&page=%s&no_wrap=1"
         self.urls['category_audience_favs'] = "http://blip.tv/pr/channel_get_audience_faves?channels_id=%s&page=%s&no_wrap=1"
         self.urls['home_popular'] = "http://blip.tv/pr/home_get_popular_shows?page=%s&no_wrap=1"
@@ -48,12 +48,19 @@ class BlipTVScraper:
         self.urls['home_new'] = "http://blip.tv/pr/home_get_new_shows?page=%s&no_wrap=1"
 
     def extractAndResizeThumbnail(self, item):
-        thumbnail = self.common.parseDOM(item, "div", attrs={"class": "PosterCard"}, ret="style")[0]
-        if thumbnail.find(":url("):
+        thumbnails = self.common.parseDOM(item, "div", attrs={"class": "PosterCard"}, ret="style")
+
+        if not thumbnails:
+            thumbnails = self.common.parseDOM(item, "img", attrs={"class": "Poster"}, ret="src")
+
+        thumbnail = thumbnails[0]
+        if thumbnail.find(":url(") > -1:
             thumbnail = thumbnail[thumbnail.find(":url(") + 5:]
             thumbnail = thumbnail[:thumbnail.find(");")]
-            thumbnail = thumbnail.replace("&w=220", "&w=440")
-            thumbnail = thumbnail.replace("&h=325", "&h=650")
+
+        thumbnail = thumbnail.replace("&w=220", "&w=440")
+        thumbnail = thumbnail.replace("&h=325", "&h=650")
+
         return thumbnail
 
     def searchShow(self, params={}):
@@ -113,15 +120,15 @@ class BlipTVScraper:
             url = self.createUrl(params, page)
 
             result = self.common.fetchPage({"link": url})
-            lst = self.common.parseDOM(result["content"], "div", {"class": "EpisodeCard Extended"})
+            lst = self.common.parseDOM(result["content"], "div", {"class": "MyBlipEpisodeCardWrap"})
 
-            if len(lst) > 0 and page <= 20:
+            if len(lst) > 0 and page <= 50:
                 next = "true"
 
             for ep in lst:
-                title = self.common.parseDOM(ep, "h5", ret="title")
-                videoid = self.common.parseDOM(ep, "a", attrs={"class": "EpisodeThumb"}, ret="href")
-                image = self.common.parseDOM(ep, "img", attrs={"class": "ThumbnailImage"}, ret="src")
+                title = self.common.parseDOM(ep, "span", {"class":"EpisodeTitle"})[0]
+                videoid = self.common.parseDOM(ep, "a", attrs={"class": "EpisodeCardLink"}, ret="href")
+                image = self.common.parseDOM(ep, "img", attrs={"class": "Thumb"}, ret="src")
 
                 item = {}
                 item["videoid"] = videoid[0][videoid[0].rfind("-") + 1:]
@@ -214,6 +221,8 @@ class BlipTVScraper:
             result = self.common.fetchPage({"link": url})
 
             show_list = self.common.parseDOM(result["content"], "div", attrs={"class": "PosterCardWrap"})
+            if not show_list:
+                show_list = self.common.parseDOM(result["content"], "div", attrs={"class": "ChannelDirectoryItem"})
 
             if not show_list:
                 tester = False
@@ -221,17 +230,23 @@ class BlipTVScraper:
 
             for show in show_list:
                 thumbnail = self.extractAndResizeThumbnail(show)
-                print "show: " + repr(show)
+
                 title = self.common.parseDOM(show, "h1", attrs={"class": "ShowTitle"})
                 if not title:
-                    title = self.common.parseDOM(show, "div", attrs={"class": "ShowTitle"})[0]
-                else:
-                    title = title[0]
+                    title = self.common.parseDOM(show, "div", attrs={"class": "ShowTitle"})
+                if not title:
+                    title = self.common.parseDOM(show, "h3")
+                    title = self.common.parseDOM(title, "a")
 
-                link = self.common.parseDOM(show, "div", attrs={"class": "PosterCard"}, ret="data-show-page-url")[0]
+                title = title[0]
+
+                link = self.common.parseDOM(show, "div", attrs={"class": "PosterCard"}, ret="data-show-page-url")
+                if not link:
+                    link = self.common.parseDOM(show, "h3")
+                    link = self.common.parseDOM(link, "a", ret="href")
 
                 item = {}
-                item["show"] = link
+                item["show"] = link[0]
                 item["scraper"] = "show"
                 item["thumbnail"] = thumbnail
                 item["Title"] = self.common.replaceHTMLCodes(title)
@@ -249,7 +264,7 @@ class BlipTVScraper:
         self.common.log("")
         url = self.createUrl(params)
         result = self.common.fetchPage({"link": url})
-        channel_id = self.common.parseDOM(result["content"], "div", attrs={"id": "ChannelHeading"}, ret="data-id")
+        channel_id = self.common.parseDOM(result["content"], "div", attrs={"id": "PageInfo"}, ret="data-channels-id")
         if channel_id:
             self.common.log(repr(channel_id))
             params["channel_id"] = channel_id[0]
@@ -435,9 +450,7 @@ class BlipTVScraper:
 
         if get("category"):
             params["folder"] = "true"
-            if get("scraper") in ['browse_shows']:
-                function = self.scrapeCategoryShows
-            if get("scraper") in ['staff_picks', 'favorites']:
+            if get("scraper") in ['staff_picks', 'favorites', 'browse_shows']:
                 function = self.scrapeCategoryFeaturedShows
             if get("scraper") in ['popular_episodes', 'new_episodes', 'trending_episodes']:
                 del params["folder"]
