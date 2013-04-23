@@ -345,6 +345,113 @@ class BlipTVScraper:
 
         self.common.log("" + repr(params))
 
+    def scrapeFollowedShows(self, params={}):
+        self.common.log("")
+        get = params.get
+        tester = True
+        shows = []
+        page = 1
+
+        while tester:
+            url = self.createUrl(params, page)
+            url = "http://blip.tv/myblip"
+            #show_list = self.common.parseDOM(result["content"], "div", attrs={"class": "FollowContent"})
+            url = "http://blip.tv/myblip/show_follows?no_wrap=1"
+            cookie = self.settings.getSetting("login_cookie")
+
+            result = self.common.fetchPage({"link": url, "cookie": cookie})
+
+            show_list = self.common.parseDOM(result["content"], "div", attrs={"class": "Show"})
+
+            if not show_list:
+                tester = False
+                continue
+            tester = False
+            for show in show_list:
+                self.common.log("Show: " + show)
+                div = self.common.parseDOM(show, "div", attrs={"class": "PosterCardWrap"})
+                show_name = self.common.parseDOM(div[0], "a", ret="href")
+                titles = self.common.parseDOM(div[0], "div", attrs={"class": "ShowTitle"})
+                # <div class="PosterCard" style="background-image:url(http://8.i.blip.tv/g?src=Redlettermedia-poster_image606.jpg&amp;w=220&amp;h=325&amp;fmt=jpg);"
+                images = self.common.parseDOM(show, "div", attrs={"class": "PosterCard"}, ret="style")
+
+                item = {}
+                item["show"] = show_name[0]
+                item["scraper"] = "show"
+                item["thumbnail"] = images[0].replace("background-image:url(", "").replace(");", "")
+                item["Title"] = self.common.replaceHTMLCodes(titles[0])
+
+                shows.append(item)
+            page += 1
+
+        return shows
+
+    def scrapeLovedShows(self, params={}):
+        self.common.log("")
+        get = params.get
+        episodes = []
+
+#        self.scrapeUserId(params)
+#        if not get("user_id",""):
+#            return episodes
+
+        original_page = int(get("page", "0"))
+        per_page = (10, 15, 20, 25, 30, 40, 50)[int(self.settings.getSetting("perpage"))]
+        eps_per_page = 12
+
+        max_pages = per_page / eps_per_page + 1
+        start_page = original_page * per_page / eps_per_page + 1
+
+        page = start_page
+        tester = True
+        while tester:
+            url = self.createUrl(params, page)
+            url = "http://blip.tv/myblip/loves"
+            cookie = self.settings.getSetting("login_cookie")
+            if cookie == "":
+                self.common.log("FALLBACK TO HARDCODE COOKIE")
+                cookie = "fbm_136482209767138=base_domain=.blip.tv; v_session=FmqFFH7FspCJkX93xL1R51JhGBLIPiKlh;; fbsr_136482209767138=Fb092CSu22So75_yQlVLZbTdm5f9Y3N-da3gVzXLm1Y.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImNvZGUiOiJBUUJ4bFJ3eVBTVGt5d2d3VXdVUkVOOW9sM2hhcGJxTFNVSVZ2RGJIbUJGaW5QanRnZ0wtVFdWMWpka0tRdF9uREJpMHdydGdEM0FIN29LeVVveTRxZEYwRFlwUjJ1U1JQNEw4N2YxOHhIdjlOajRoQmlQMFFkYlB4YzhlblVqeFdVeG1nWkVvcXRYUzJ5Mk4yb25jeVR2eVVWa2xTOTRWSkIxWXhEUlVYVjg5YzFQV1VRS1BVZUtNZVJDQ2tBUnhKNDV3ZGQ4N0NWYjRkRVZEQkVZOGhKdDciLCJpc3N1ZWRfYXQiOjEzNjY1NDA4NjYsInVzZXJfaWQiOiI1MzI1MTI2NTMifQ"
+
+            result = self.common.fetchPage({"link": url, "cookie": cookie})
+
+            loop_list = self.common.parseDOM(result["content"], "div", attrs={"class": "MyBlipEpisodeCardWrap"})
+#            if not loop_list or page > (max_pages + start_page):
+#                tester = False
+#                continue
+            tester = False
+
+            for episode in loop_list:
+                self.common.log("loop_list: " + repr(episode))
+                studio = self.common.parseDOM(episode, "span", attrs={"class": "ShowTitle"})
+                if studio:
+                    studio = studio[0].strip()
+
+                #episode = episode.replace("\t","")
+
+                id = self.common.parseDOM(episode, "a", attrs={"class": "EpisodeCardLink"}, ret="href")
+                image = self.common.parseDOM(episode, "img", ret="src")
+                title = self.common.parseDOM(episode, "span", attrs={"class": "EpisodeTitle"})
+
+                item = {}
+                item["videoid"] = id[0][id[0].rfind("-") + 1:]
+                item["Title"] = self.common.replaceHTMLCodes(title[0].strip())
+                item["thumbnail"] = image[0]
+                item["Studio"] = studio
+
+                episodes.append(item)
+            #page += 1
+
+        if get("user_id"):
+            del params["user_id"]
+
+        if (len(episodes) > 0):
+            episodes = episodes[((per_page * original_page) - (eps_per_page * (start_page - 1))):]
+            if (len(episodes) > per_page):
+                episodes = episodes[:per_page]
+                self.utils.addNextFolder(episodes, params)
+
+        return episodes
+
     def scrapeShowVideos(self, params={}):
         self.common.log("")
         get = params.get
@@ -466,6 +573,13 @@ class BlipTVScraper:
         if get("scraper") == "show":
             function = self.scrapeShowVideos
 
+        if get("scraper") == "my_followed":
+            params["folder"] = "true"
+            function = self.scrapeFollowedShows
+
+        if get("scraper") == "my_loved":
+            function = self.scrapeLovedShows
+
         if get("scraper") in ["new_shows", "popular_shows", "trending_shows"]:
             params["folder"] = "true"
             function = self.scrapeShowsHomepageFeed
@@ -543,7 +657,8 @@ class BlipTVScraper:
         if get("path"):
             del params["path"]
 
-        result = self.cache.cacheFunction(params["new_results_function"], params)
+        #result = self.cache.cacheFunction(params["new_results_function"], params)
+        result = params["new_results_function"](params)
 
         params["path"] = path
         params["page"] = str(page)

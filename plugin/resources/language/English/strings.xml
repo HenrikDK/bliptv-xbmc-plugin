@@ -17,6 +17,10 @@
     <string id="30014">Search...</string>
     <string id="30015">Change plugin settings</string>
     <string id="30016">Explore Blip.tv</string>
+    <string id="30017">My Followed Shows</string>
+    <string id="30018">New Episodes</string>
+    <string id="30019">Shows with new episodes</string>
+    <string id="30020">My Loved Episodes</string>
         
     <!-- Plugin settings strings -->
     <string id="30207">Download Location</string>

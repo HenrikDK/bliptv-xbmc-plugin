@@ -39,23 +39,25 @@ class BlipTVNavigation:
 
         # This list contains the main menu structure the user first encounters when running the plugin
         #    label                         , path                                          , thumbnail                            ,  scraper / action
-        self. categories = (
-            {'Title':self.language(30016)  ,'path':"/root/explore"                         , 'thumbnail':"explore"                },
-            {'Title':self.language(30001)  ,'path':"/root/explore/browse"                  , 'thumbnail':"explore"                , 'scraper': 'browse_shows' },
-            {'Title':self.language(30002)  ,'path':"/root/explore/staffpicks"              , 'thumbnail':"explore"                , 'scraper': 'staff_picks' },
-            {'Title':self.language(30003)  ,'path':"/root/explore/favorites"               , 'thumbnail':"explore"                , 'scraper': 'favorites' },
-            {'Title':self.language(30004)  ,'path':"/root/explore/newshows"                , 'thumbnail':"explore"                , 'scraper': 'new_shows' },
-            {'Title':self.language(30005)  ,'path':"/root/explore/popularshows"            , 'thumbnail':"explore"                , 'scraper': 'popular_shows' },
-            {'Title':self.language(30006)  ,'path':"/root/explore/trendingshow"            , 'thumbnail':"explore"                , 'scraper': 'trending_shows' },
-            {'Title':self.language(30007)  ,'path':"/root/explore/newepisodes"             , 'thumbnail':"explore"                , 'scraper': 'new_episodes' },
-            {'Title':self.language(30008)  ,'path':"/root/explore/popularepisodes"         , 'thumbnail':"explore"                , 'scraper': 'popular_episodes' },
-            {'Title':self.language(30009)  ,'path':"/root/explore/trendingepisodes"        , 'thumbnail':"explore"                , 'scraper': 'trending_episodes' },
-            {'Title':self.language(30010)  ,'path':"/root/my_favorites"                    , 'thumbnail':"explore"                , 'store': 'favorites', 'folder':"true" },
-            {'Title':self.language(30011)  ,'path':"/root/my_favorites/search"             , 'thumbnail':"search"                 , 'scraper': 'show_search', 'folder':"true" },
-            {'Title':self.language(30012)  ,'path':"/root/downloads"                       , 'thumbnail':"downloads"              , 'feed': 'downloads' },
-            {'Title':self.language(30013)  ,'path':"/root/search"                          , 'thumbnail':"search"                 , 'store':"searches", 'folder':'true' },
-            {'Title':self.language(30014)  ,'path':"/root/search/new"                      , 'thumbnail':"search"                 , 'scraper': 'search'},
-            {'Title':self.language(30015)  ,'path':"/root/settings"                        , 'thumbnail':"settings"               , 'action':"settings" }
+        self.categories = (
+            {"Title":self.language(30016)  ,"path":"/root/explore"                         , "thumbnail":"explore"                },
+            {"Title":self.language(30001)  ,"path":"/root/explore/browse"                  , "thumbnail":"explore"                , "scraper": "browse_shows" },
+            {"Title":self.language(30002)  ,"path":"/root/explore/staffpicks"              , "thumbnail":"explore"                , "scraper": "staff_picks" },
+            {"Title":self.language(30003)  ,"path":"/root/explore/favorites"               , "thumbnail":"explore"                , "scraper": "favorites" },
+            {"Title":self.language(30004)  ,"path":"/root/explore/newshows"                , "thumbnail":"explore"                , "scraper": "new_shows" },
+            {"Title":self.language(30005)  ,"path":"/root/explore/popularshows"            , "thumbnail":"explore"                , "scraper": "popular_shows" },
+            {"Title":self.language(30006)  ,"path":"/root/explore/trendingshow"            , "thumbnail":"explore"                , "scraper": "trending_shows" },
+            {"Title":self.language(30007)  ,"path":"/root/explore/newepisodes"             , "thumbnail":"explore"                , "scraper": "new_episodes" },
+            {"Title":self.language(30008)  ,"path":"/root/explore/popularepisodes"         , "thumbnail":"explore"                , "scraper": "popular_episodes" },
+            {"Title":self.language(30009)  ,"path":"/root/explore/trendingepisodes"        , "thumbnail":"explore"                , "scraper": "trending_episodes" },
+            {"Title":self.language(30010)  ,"path":"/root/my_favorites"                    , "thumbnail":"explore"                , "store": "favorites", "folder":"true" },
+            {"Title":self.language(30011)  ,"path":"/root/my_favorites/search"             , "thumbnail":"search"                 , "scraper": "show_search", "folder":"true" },
+            {"Title":self.language(30017)  ,"path":"/root/my_followed"                     , "thumbnail":"explore"                , "scraper": "my_followed" , "login": "true", "folder": "true"},
+            {"Title":self.language(30020)  ,"path":"/root/my_loved"                        , "thumbnail":"explore"                , "scraper": "my_loved" , "login": "true"},
+            {"Title":self.language(30012)  ,"path":"/root/downloads"                       , "thumbnail":"downloads"              , "feed": "downloads" },
+            {"Title":self.language(30013)  ,"path":"/root/search"                          , "thumbnail":"search"                 , "store":"searches", "folder":"true" },
+            {"Title":self.language(30014)  ,"path":"/root/search/new"                      , "thumbnail":"search"                 , "scraper": "search"},
+            {"Title":self.language(30015)  ,"path":"/root/settings"                        , "thumbnail":"settings"               , "action":"settings" }
             )
 
     #==================================== Main Entry Points===========================================
@@ -68,6 +70,8 @@ class BlipTVNavigation:
         if not get("scraper") == "search" and not get("scraper") == "show_search" and get("page", "0") == "0" and not get("show"):
             for category in self.categories:
                 cat_get = category.get
+                if cat_get("login") == "true" and self.settings.getSetting("login_cookie") == "":
+                    continue
                 if (cat_get("path").find(path + "/") > -1):
                     if (cat_get("path").rfind("/") <= len(path + "/")):
                         if (get("feed") == "downloads"):
