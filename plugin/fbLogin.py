@@ -133,7 +133,7 @@ def getSessionCookies(result, callback_url):
 
     result = common.fetchPage({"link": callback_url, "refering": result["new_url"], "cookie": cookies, "post_data": post_data})
     common.log("Done: " + repr(result), 0)
-    return return cookies
+    return cookies
 
 def replaceSessionCookie(cookies):
     common.log("")
