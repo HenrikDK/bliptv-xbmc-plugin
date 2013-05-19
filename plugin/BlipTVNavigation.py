@@ -91,6 +91,7 @@ class BlipTVNavigation:
         self.xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), succeeded=True, cacheToDisc=cache)
 
     def downloadVideo(self, params):
+        self.common.log("")
         get = params.get
 
         if not self.settings.getSetting("downloadPath"):

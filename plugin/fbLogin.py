@@ -16,6 +16,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 import sys
+import time
 import json
 settings = sys.modules["__main__"].settings
 language = sys.modules["__main__"].language
@@ -121,6 +122,7 @@ def getSessionCookies(result, callback_url):
                 user_id = val
                 common.log("Found cookie: " + repr(inp) + " = " + repr(val))
 
+    settings.setSetting("login_expires_at", str(time.time() + float(fb_reply["expires_in"]) ))
     post_data = {"authResponse": json.dumps({"accessToken": fb_reply["access_token"],
                                              "userID": user_id,
                                              "expiresIn": fb_reply["expires_in"],
@@ -149,16 +151,29 @@ def replaceSessionCookie(cookies):
 
 def login(oauth_url, callback_url):
     common.log("")
+
+    email = settings.getSetting("username")
+    if email == "":
+        common.log("No facebook email address provided")
+        return False
+
+    pword = settings.getSetting("user_password")
+    if pword == "":
+        pword = common.getUserInput(language(30628), hidden=True)
+
+    if pword == "":
+        common.log("No facebook password provided")
+        return False
+
     cookies = ""
     result = common.fetchPage({"link": oauth_url})
 
+    utils.showMessage(language(30027), language(30027))
     if result["content"].find("login_form") > -1:
         post_url, post_data = extractForm(result["content"])
                 
-        post_data["email"] = settings.getSetting("username")
-        post_data["pass"] = settings.getSetting("user_password")
-        if post_data["pass"] == "":
-            post_data["pass"] = common.getUserInput(language(30628), hidden=True)
+        post_data["email"] = email
+        post_data["pass"] = pword
 
         del post_data["cancel"]
 
@@ -176,7 +191,7 @@ def login(oauth_url, callback_url):
         errors = common.parseDOM(result["content"], "div", attrs={"id": "enter_code_error"},)
         if len(errors) > 0:
             common.log("Got error from facebook: " + repr(errors))
-            utils.showMessage("Error", errors[0])
+            utils.showMessage(language(30609), errors[0])
 
     common.log("Result2: " + repr(result), 3)
 
@@ -189,8 +204,11 @@ def login(oauth_url, callback_url):
         cookies = getSessionCookies(result, callback_url)
         cookies = replaceSessionCookie(cookies)
 
-        common.log("cookies2: " + repr(cookies))
         settings.setSetting("login_cookie", json.dumps(cookies))
+        common.log("Done: " + repr(cookies))
+        utils.showMessage(language(30027), language(30031))
+    else:
+        common.log("Failed to login")
+        utils.showMessage(language(30600), language(30609))
 
-    common.log("Done: " + repr(cookies))
 

@@ -253,7 +253,7 @@ def _getDOMElements(item, name, attrs):
     return lst
 
 def parseDOM(html, name=u"", attrs={}, ret=False):
-    log("Name: " + repr(name) + " - Attrs:" + repr(attrs) + " - Ret: " + repr(ret) + " - HTML: " + str(type(html)), 3)
+    log("Name: " + repr(name) + " - Attrs:" + repr(attrs) + " - Ret: " + repr(ret) + " - HTML: " + str(type(html)), 1)
 
     if isinstance(name, str): # Should be handled
         try:
@@ -302,7 +302,7 @@ def parseDOM(html, name=u"", attrs={}, ret=False):
             lst = lst2
         ret_lst += lst
 
-    log("Done: " + repr(ret_lst), 3)
+    log("Done: " + repr(ret_lst), 0)
     return ret_lst
 
 
