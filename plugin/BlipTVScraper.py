@@ -27,6 +27,7 @@ class BlipTVScraper:
         self.plugin = sys.modules["__main__"].plugin
         self.dbg = sys.modules["__main__"].dbg
         self.cache = sys.modules["__main__"].cache
+        self.xbmc = sys.modules["__main__"].xbmc
         self.common = sys.modules["__main__"].common
         self.utils = sys.modules["__main__"].utils
         self.storage = sys.modules["__main__"].storage
@@ -408,9 +409,6 @@ class BlipTVScraper:
             url = self.createUrl(params, page)
             url = "http://blip.tv/myblip/loves"
             cookie = self.settings.getSetting("login_cookie")
-            if cookie == "":
-                self.common.log("FALLBACK TO HARDCODE COOKIE")
-                cookie = "fbm_136482209767138=base_domain=.blip.tv; v_session=FmqFFH7FspCJkX93xL1R51JhGBLIPiKlh;; fbsr_136482209767138=Fb092CSu22So75_yQlVLZbTdm5f9Y3N-da3gVzXLm1Y.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImNvZGUiOiJBUUJ4bFJ3eVBTVGt5d2d3VXdVUkVOOW9sM2hhcGJxTFNVSVZ2RGJIbUJGaW5QanRnZ0wtVFdWMWpka0tRdF9uREJpMHdydGdEM0FIN29LeVVveTRxZEYwRFlwUjJ1U1JQNEw4N2YxOHhIdjlOajRoQmlQMFFkYlB4YzhlblVqeFdVeG1nWkVvcXRYUzJ5Mk4yb25jeVR2eVVWa2xTOTRWSkIxWXhEUlVYVjg5YzFQV1VRS1BVZUtNZVJDQ2tBUnhKNDV3ZGQ4N0NWYjRkRVZEQkVZOGhKdDciLCJpc3N1ZWRfYXQiOjEzNjY1NDA4NjYsInVzZXJfaWQiOiI1MzI1MTI2NTMifQ"
 
             result = self.common.fetchPage({"link": url, "cookie": cookie})
 

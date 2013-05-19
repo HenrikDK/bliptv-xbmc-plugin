@@ -17,10 +17,12 @@
 '''
 
 import sys
-import xbmcaddon
 import xbmc
-import xbmcplugin
 import xbmcgui
+import xbmcaddon
+import xbmcplugin
+import urllib2
+import cookielib
 
 try: import xbmcvfs
 except: import xbmcvfsdummy as xbmcvfs
@@ -45,6 +47,10 @@ storage = ""
 player = ""
 common = ""
 utils = ""
+
+cookiejar = cookielib.LWPCookieJar()
+cookie_handler = urllib2.HTTPCookieProcessor(cookiejar)
+opener = urllib2.build_opener(cookie_handler)
 
 if (__name__ == "__main__" ):
     if dbg:
@@ -86,3 +92,8 @@ if (__name__ == "__main__" ):
             navigation.executeAction(params)
         elif (get("path")):
             navigation.listMenu(params)
+
+    #import fbLogin
+    #oauth_url = "https://www.facebook.com/dialog/oauth?display=popup&domain=blip.tv&scope=email&e2e=%7B%7D&app_id=136482209767138&locale=en_US&sdk=joey&client_id=136482209767138&redirect_uri=http%3A%2F%2Fstatic.ak.facebook.com%2Fconnect%2Fxd_arbiter.php%3Fversion%3D24%23cb%3Df1ec7ef034f6e36%26origin%3Dhttp%253A%252F%252Fblip.tv%252Ff19fa655d24faaa%26domain%3Dblip.tv%26relation%3Dopener%26frame%3Df4a8273bce9c22&origin=1&response_type=token%2Csigned_request"
+    #callback_url = "http://blip.tv/facebook/verify_viewer_user"
+    #fbLogin.login(oauth_url, callback_url)

@@ -23,6 +23,8 @@
     <string id="30020">My Loved Episodes</string>
         
     <!-- Plugin settings strings -->
+    <string id="30200">Username</string>
+    <string id="30201">Password</string>
     <string id="30207">Download Location</string>
     <string id="30208">Max video quality</string>
     <string id="30210">Videos per page</string>
@@ -72,4 +74,6 @@
     <string id="30620">Stream type not supported</string>
     <string id="30624">Downloading</string>
     <string id="30625">Download Failed</string>
+    <string id="30627">Please provide 2-factor authentication PIN</string>
+    <string id="30628">Please provide your password</string>
 </strings>
