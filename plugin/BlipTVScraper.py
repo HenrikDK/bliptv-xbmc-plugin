@@ -150,8 +150,8 @@ class BlipTVScraper:
         url = self.createUrl(params)
         result = self.common.fetchPage({"link": url})
 
-        lst = self.common.parseDOM(result["content"], "div", attrs={"class": "Categories HoverDropDown"})
-        ul_lst = self.common.parseDOM(lst, "ul", attrs={"class": "List"})
+        lst = self.common.parseDOM(result["content"], "div", attrs={"class": "wrap BlipPicksCategories"})
+        ul_lst = self.common.parseDOM(lst, "ul", attrs={"class": "browse-genres"})
         names = self.common.parseDOM(ul_lst, "a")
         ids = self.common.parseDOM(ul_lst, "a", ret="href")
 
