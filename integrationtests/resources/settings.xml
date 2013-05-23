@@ -36,4 +36,5 @@
     <setting id="user_password" value="SomeUser" />
     <setting id="username" value="SomePass" />
     <setting id="watch_later" value="true" />
+    <setting id="login_cookie" value='&quot;fbm_136482209767138=base_domain=.blip.tv; fbsr_136482209767138=H9ukMvkswUEQg1qR8scRkZjZGQi4IlCv7wAnCdWbhPU.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImNvZGUiOiJBUUREWThJeWxLd1NZTkN0b0pYQWk1ZEczaG11Rk9GbEFXTHBURWlfZXVpd1R4UERXU21iWjZscl9HQTI3aWJBNjJqRC1FOENPWUJlY1lfODc4MVlORnB2YWIzRUVnbnJ1S3VONGI5RjR2YjBmdWtJQ2ZnbHlqYThTOWtKX3hvQWN5dm5URHdqWldEXzNhQ0ZoU3lXQ18yWU5JT2pILUNzNGFOYW5jYjV6Zms5ZVlpRDNZbFpmZVJUNGxVYkVKZWRfWVY1TkFNQmpsQU5CWEdmMFg0RG5KMnBBTHlBa1czRjVoejNXQmZDMlZmb0NMUVEwNlcyYzFEZjgyQUM4ZjdNTlU4dHY4ZjZkYWJleVViVUR6LVc4Y2dJY0dVaTJwRGdfU081MXlKSTdTbDN5SGNSR1Y5NERnTDd2TC1BM3hicTRNMCIsImlzc3VlZF9hdCI6MTM2ODk4MTY1MSwidXNlcl9pZCI6IjUzMjUxMjY1MyJ9; v_session=HC3prmv81hv4ks2dAagr5yg4WBLIPiKlh; &quot;' />
 </settings>

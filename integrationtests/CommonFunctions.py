@@ -27,7 +27,7 @@ import HTMLParser
 #import chardet
 import json
 
-version = u"1.3.0"
+version = u"1.5.0"
 plugin = u"CommonFunctions Beta-" + version
 print plugin
 
@@ -93,11 +93,23 @@ def getUserInputNumbers(title=u"Input", default=u""):
     return str(result)
 
 
+def getXBMCVersion():
+    log("", 3)
+    version = xbmc.getInfoLabel( "System.BuildVersion" )
+    log(version, 3)
+    for key in ["-", " "]:
+        if version.find(key) -1:
+            version = version[:version.find(key)]
+    version = float(version)
+    log(repr(version))
+    return version
+
 # Converts the request url passed on by xbmc to the plugin into a dict of key-value pairs
 def getParameters(parameterString):
     log("", 5)
     commands = {}
-    parameterString = urllib.unquote_plus(parameterString)
+    if getXBMCVersion() >= 12.0:
+        parameterString = urllib.unquote_plus(parameterString)
     splitCommands = parameterString[parameterString.find('?') + 1:].split('&')
 
     for command in splitCommands:
@@ -178,7 +190,10 @@ def _getDOMContent(html, name, match, ret):  # Cleanup
 
 def _getDOMAttributes(match, name, ret):
     log("", 3)
-    lst = re.compile('<' + name + '.*?' + ret + '=(.[^>]*?)>', re.M | re.S).findall(match)
+
+    lst = re.compile('<' + name + '.*?' + ret + '=([\'"].[^>]*?[\'"])>', re.M | re.S).findall(match)
+    if len(lst) == 0:
+        lst = re.compile('<' + name + '.*?' + ret + '=(.[^>]*?)>', re.M | re.S).findall(match)
     ret = []
     for tmp in lst:
         cont_char = tmp[0]
@@ -208,6 +223,7 @@ def _getDOMAttributes(match, name, ret):
 
 def _getDOMElements(item, name, attrs):
     log("", 3)
+
     lst = []
     for key in attrs:
         lst2 = re.compile('(<' + name + '[^>]*?(?:' + key + '=[\'"]' + attrs[key] + '[\'"].*?>))', re.M | re.S).findall(item)
@@ -237,8 +253,7 @@ def _getDOMElements(item, name, attrs):
     return lst
 
 def parseDOM(html, name=u"", attrs={}, ret=False):
-    log("Name: " + repr(name) + " - Attrs:" + repr(attrs) + " - Ret: " + repr(ret) + " - HTML: " + str(type(html)), 3)
-    #log("BLA: " + repr(type(html)) + " - " + repr(type(name)))
+    log("Name: " + repr(name) + " - Attrs:" + repr(attrs) + " - Ret: " + repr(ret) + " - HTML: " + str(type(html)), 1)
 
     if isinstance(name, str): # Should be handled
         try:
@@ -287,7 +302,7 @@ def parseDOM(html, name=u"", attrs={}, ret=False):
             lst = lst2
         ret_lst += lst
 
-    log("Done: " + repr(ret_lst), 3)
+    log("Done: " + repr(ret_lst), 0)
     return ret_lst
 
 
@@ -305,7 +320,7 @@ def extractJS(data, function=False, variable=False, match=False, evaluate=False,
         if function:
             tmp_lst = re.compile(function + '\(.*?\).*?;', re.M | re.S).findall(script)
         elif variable:
-            tmp_lst = re.compile(variable + '[ ]+=.*?;', re.M | re.S).findall(script)            
+            tmp_lst = re.compile(variable.replace("[", "\[").replace("]", "\]") + '[ ]+=.*?;', re.M | re.S).findall(script)            
         else:
             tmp_lst = [script]
         if len(tmp_lst) > 0:
@@ -379,7 +394,7 @@ def extractJS(data, function=False, variable=False, match=False, evaluate=False,
 def fetchPage(params={}):
     get = params.get
     link = get("link")
-    ret_obj = {}
+    ret_obj = { "new_url": link}
     if get("post_data"):
         log("called for : " + repr(params['link']))
     else:
@@ -412,13 +427,14 @@ def fetchPage(params={}):
         request.add_header('Cookie', get("cookie"))
 
     if get("refering"):
+        log("Setting refering: " + get("refering"), 3)
         request.add_header('Referer', get("refering"))
 
     try:
         log("connecting to server...", 1)
 
         con = urllib2.urlopen(request)
-        ret_obj["header"] = con.info()
+        ret_obj["header"] = con.info().headers
         ret_obj["new_url"] = con.geturl()
         if get("no-content", "false") == u"false" or get("no-content", "false") == "false":
             inputdata = con.read()
