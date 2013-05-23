@@ -47,6 +47,8 @@ class BlipTVScraper:
         self.urls['home_popular'] = "http://blip.tv/pr/home_get_popular_shows?page=%s&no_wrap=1"
         self.urls['home_trending'] = "http://blip.tv/pr/home_get_growing_shows?page=%s&no_wrap=1"
         self.urls['home_new'] = "http://blip.tv/pr/home_get_new_shows?page=%s&no_wrap=1"
+        self.urls['followed'] = "http://blip.tv/myblip/show_follows?page=%s&no_wrap=1"
+        self.urls['loved'] = "http://blip.tv/myblip/loves?page=%s&no_wrap=1"
 
     def extractAndResizeThumbnail(self, item):
         thumbnails = self.common.parseDOM(item, "div", attrs={"class": "PosterCard"}, ret="style")
@@ -355,9 +357,6 @@ class BlipTVScraper:
 
         while tester:
             url = self.createUrl(params, page)
-            url = "http://blip.tv/myblip"
-            #show_list = self.common.parseDOM(result["content"], "div", attrs={"class": "FollowContent"})
-            url = "http://blip.tv/myblip/show_follows?no_wrap=1"
             cookie = self.settings.getSetting("login_cookie")
 
             result = self.common.fetchPage({"link": url, "cookie": cookie})
@@ -367,13 +366,13 @@ class BlipTVScraper:
             if not show_list:
                 tester = False
                 continue
+
             tester = False
             for show in show_list:
                 self.common.log("Show: " + show)
                 div = self.common.parseDOM(show, "div", attrs={"class": "PosterCardWrap"})
                 show_name = self.common.parseDOM(div[0], "a", ret="href")
                 titles = self.common.parseDOM(div[0], "div", attrs={"class": "ShowTitle"})
-                # <div class="PosterCard" style="background-image:url(http://8.i.blip.tv/g?src=Redlettermedia-poster_image606.jpg&amp;w=220&amp;h=325&amp;fmt=jpg);"
                 images = self.common.parseDOM(show, "div", attrs={"class": "PosterCard"}, ret="style")
 
                 item = {}
@@ -392,10 +391,6 @@ class BlipTVScraper:
         get = params.get
         episodes = []
 
-#        self.scrapeUserId(params)
-#        if not get("user_id",""):
-#            return episodes
-
         original_page = int(get("page", "0"))
         per_page = (10, 15, 20, 25, 30, 40, 50)[int(self.settings.getSetting("perpage"))]
         eps_per_page = 12
@@ -407,24 +402,17 @@ class BlipTVScraper:
         tester = True
         while tester:
             url = self.createUrl(params, page)
-            url = "http://blip.tv/myblip/loves"
             cookie = self.settings.getSetting("login_cookie")
 
             result = self.common.fetchPage({"link": url, "cookie": cookie})
 
             loop_list = self.common.parseDOM(result["content"], "div", attrs={"class": "MyBlipEpisodeCardWrap"})
-#            if not loop_list or page > (max_pages + start_page):
-#                tester = False
-#                continue
-            tester = False
 
             for episode in loop_list:
                 self.common.log("loop_list: " + repr(episode))
                 studio = self.common.parseDOM(episode, "span", attrs={"class": "ShowTitle"})
                 if studio:
                     studio = studio[0].strip()
-
-                #episode = episode.replace("\t","")
 
                 id = self.common.parseDOM(episode, "a", attrs={"class": "EpisodeCardLink"}, ret="href")
                 image = self.common.parseDOM(episode, "img", ret="src")
@@ -437,7 +425,6 @@ class BlipTVScraper:
                 item["Studio"] = studio
 
                 episodes.append(item)
-            #page += 1
 
         if get("user_id"):
             del params["user_id"]
@@ -626,6 +613,12 @@ class BlipTVScraper:
         if get("scraper") == "new_shows":
             url = self.urls['home_new'] % page
 
+        if get("scraper") == "my_followed":
+            url = self.urls['followed'] % page
+
+        if get("scraper") == "my_loved":
+            url = self.urls['loved'] % page
+
         if get("scraper") == "show":
             if get("show") and not get("user_id"):
                 url = self.urls['main'] + get("show")
@@ -676,7 +669,11 @@ class BlipTVScraper:
         return result
 
     def scrape(self, params={}):
+        get = params.get
         self.common.log("")
+
+        if get("login") == "true":
+            self.login.login()
 
         self.getNewResultsFunction(params)
 
