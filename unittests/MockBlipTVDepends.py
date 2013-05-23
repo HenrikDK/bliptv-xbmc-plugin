@@ -39,6 +39,8 @@ class MockBlipTVDepends:
 
         sys.modules["__main__"].cache = Mock()
 
+        import BlipTVLogin
+        sys.modules["__main__"].login = Mock(spec=BlipTVLogin.BlipTVLogin)
         import BlipTVStorage
         sys.modules["__main__"].storage = Mock(spec=BlipTVStorage.BlipTVStorage)
         import BlipTVScraper
