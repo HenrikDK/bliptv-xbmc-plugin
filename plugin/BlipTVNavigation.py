@@ -31,8 +31,11 @@ class BlipTVNavigation:
         self.downloader = sys.modules["__main__"].downloader
         self.storage = sys.modules["__main__"].storage
         self.scraper = sys.modules["__main__"].scraper
+        self.login = sys.modules["__main__"].login
+
         self.common = sys.modules["__main__"].common
         self.utils = sys.modules["__main__"].utils
+
         self.xbmc = sys.modules["__main__"].xbmc
         self.xbmcgui = sys.modules["__main__"].xbmcgui
         self.xbmcplugin = sys.modules["__main__"].xbmcplugin
@@ -104,10 +107,9 @@ class BlipTVNavigation:
         if "video_url" in video and download_path:
             params["url"] = video['video_url']
             params["download_path"] = download_path
-            params[
-            "useragent"] = "curl/7.22.0 (x86_64-pc-linux-gnu) libcurl/7.22.0 OpenSSL/1.0.1 zlib/1.2.3.4 libidn/1.23 librtmp/2.3"
-            filename = "%s-[%s].mp4" % (
-                ''.join(c for c in video['Title'].decode("utf-8") if c not in self.utils.INVALID_CHARS), video["videoid"])
+            params["useragent"] = "curl/7.22.0 (x86_64-pc-linux-gnu) libcurl/7.22.0 OpenSSL/1.0.1 zlib/1.2.3.4 libidn/1.23 librtmp/2.3"
+            filename = "%s-[%s].mp4" % (''.join(c for c in video['Title'].decode("utf-8") if c not in self.utils.INVALID_CHARS), video["videoid"])
+
             if get("async"):
                 self.downloader.download(filename, params, async=False)
             else:
@@ -123,6 +125,7 @@ class BlipTVNavigation:
         get = params.get
         if (get("action") == "settings"):
             self.settings.openSettings()
+            self.login.login(params)
         if (get("action") == "delete_search"):
             self.storage.deleteStoredSearch(params)
         if (get("action") == "edit_search"):
@@ -134,7 +137,6 @@ class BlipTVNavigation:
             self.storage.deleteFromMyFavoriteShows(params)
         if (get("action") == "download"):
             self.downloadVideo(params)
-
         if (get("action") == "play_video"):
             self.player.playVideo(params)
 
