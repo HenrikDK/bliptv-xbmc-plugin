@@ -49,6 +49,8 @@ class BaseTestCase(unittest2.TestCase):  #pragma: no cover
 
         import BlipTVUtils
         sys.modules["__main__"].utils = BlipTVUtils.BlipTVUtils()
+        import BlipTVLogin
+        sys.modules["__main__"].login = BlipTVLogin.BlipTVLogin()
         import BlipTVStorage
         sys.modules["__main__"].storage = BlipTVStorage.BlipTVStorage()
         import BlipTVPlayer
