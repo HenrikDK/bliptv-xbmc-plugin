@@ -62,7 +62,7 @@ class BlipTVLogin():
         self.common.log("Need 2-factor authentication")
         post_url2, post_data2 = self.extractForm(result["content"])
 
-        userpin = self.common.getUserInputNumbers(language(30627))
+        userpin = self.common.getUserInputNumbers(self.language(30627))
         if len(userpin) > 0:
             post_data2["approvals_code"] = userpin
             result = self.common.fetchPage({"link": post_url2, "post_data": post_data2, "refering": result["new_url"]})
@@ -107,7 +107,9 @@ class BlipTVLogin():
         self.common.log("Done")
         return result
 
-    def getSessionCookies(self, result, callback_url):
+    def getSessionCookies(self, result, callback_url=False):
+        if not callback_url:
+            callback_url = self.callback_url
         fb_reply = self.common.extractJS(result["content"], variable="message")
         self.common.log("FB_REPLY: " + repr(fb_reply))
         if len(fb_reply) == 0:
@@ -169,15 +171,15 @@ class BlipTVLogin():
 
         pword = self.settings.getSetting("user_password")
         if pword == "":
-            pword = self.common.getUserInput(language(30628), hidden=True)
+            pword = self.common.getUserInput(self.language(30628), hidden=True)
 
         if pword == "":
             self.common.log("No facebook password provided")
             return False
 
-        result = self.common.fetchPage({"link": oauth_url})
+        result = self.common.fetchPage({"link": self.oauth_url})
 
-        self.utils.showMessage(language(30027), language(30027))
+        self.utils.showMessage(self.language(30027), self.language(30027))
         if result["content"].find("login_form") > -1:
             post_url, post_data = self.extractForm(result["content"])
 
@@ -200,22 +202,22 @@ class BlipTVLogin():
             errors = self.common.parseDOM(result["content"], "div", attrs={"id": "enter_code_error"},)
             if len(errors) > 0:
                 self.common.log("Got error from facebook: " + repr(errors))
-                self.utils.showMessage(language(30609), errors[0])
+                self.utils.showMessage(self.language(30609), errors[0])
 
         self.common.log("Result2: " + repr(result), 3)
 
-        result = self.common.fetchPage({"link": oauth_url, "refering": result["new_url"]})
+        result = self.common.fetchPage({"link": self.oauth_url, "refering": result["new_url"]})
         self.common.log("Result3: " + repr(result), 3)
         if result["content"].find("platformDialogForm") > -1:
             result = self.allowAccess(result)
 
         if result["content"].find("signed_request") > -1:
-            cookies = self.getSessionCookies(result, callback_url)
+            cookies = self.getSessionCookies(result, self.callback_url)
             cookies = self.replaceSessionCookie(cookies)
 
             self.settings.setSetting("login_cookie", json.dumps(cookies))
             self.common.log("Done: " + repr(cookies))
-            self.utils.showMessage(language(30027), language(30031))
+            self.utils.showMessage(self.language(30027), self.language(30031))
         else:
             self.common.log("Failed to login")
-            self.utils.showMessage(language(30600), language(30609))
+            self.utils.showMessage(self.language(30600), self.language(30609))

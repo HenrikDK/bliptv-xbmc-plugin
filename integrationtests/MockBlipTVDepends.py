@@ -21,7 +21,7 @@ class MockBlipTVDepends:
         else:
             sys.modules["__main__"].dbglevel = 3
 
-        sys.modules["__main__"].login = ""
+        sys.modules["__main__"].login = Mock()
         sys.modules["__main__"].cache = Mock()
         sys.modules["__main__"].cache.cacheFunction.side_effect = self.execute
         sys.modules["__main__"].cache.getMulti.return_value = []

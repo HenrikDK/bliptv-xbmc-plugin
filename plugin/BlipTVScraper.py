@@ -31,6 +31,7 @@ class BlipTVScraper:
         self.common = sys.modules["__main__"].common
         self.utils = sys.modules["__main__"].utils
         self.storage = sys.modules["__main__"].storage
+        self.login = sys.modules["__main__"].login
 
         self.urls = {}
         self.urls['show_episodes'] = "http://blip.tv/pr/show_get_full_episode_list?users_id=%s&lite=0&esi=1&page=%s"
@@ -407,6 +408,10 @@ class BlipTVScraper:
             result = self.common.fetchPage({"link": url, "cookie": cookie})
 
             loop_list = self.common.parseDOM(result["content"], "div", attrs={"class": "MyBlipEpisodeCardWrap"})
+            if len(loop_lst) > 0 and page <= 50:
+                tester = True
+            else:
+                tester = False
 
             for episode in loop_list:
                 self.common.log("loop_list: " + repr(episode))
