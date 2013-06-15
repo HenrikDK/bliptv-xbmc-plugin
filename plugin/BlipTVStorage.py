@@ -27,6 +27,7 @@ class BlipTVStorage():
         self.common = sys.modules["__main__"].common
         self.utils = sys.modules["__main__"].utils
         self.xbmc = sys.modules["__main__"].xbmc
+        self.login = sys.modules["__main__"].login
 
     def list(self, params={}):
         self.common.log("")
