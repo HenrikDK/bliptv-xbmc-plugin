@@ -130,14 +130,14 @@ class BlipTVScraper:
                 next = "true"
 
             for ep in lst:
-                title = self.common.parseDOM(ep, "span", {"class":"EpisodeTitle"})[0]
+                title = self.common.parseDOM(ep, "span", {"class":"EpisodeTitle"})
                 videoid = self.common.parseDOM(ep, "a", attrs={"class": "EpisodeCardLink"}, ret="href")
                 image = self.common.parseDOM(ep, "img", attrs={"class": "Thumb"}, ret="src")
 
                 item = {}
                 item["videoid"] = videoid[0][videoid[0].rfind("-") + 1:]
                 item["Title"] = self.common.replaceHTMLCodes(title[0].strip())
-                item["thumbnail"] = image[0]
+                item["thumbnail"] = "http:" + image[0]
                 episodes.append(item)
             page += 1
 
